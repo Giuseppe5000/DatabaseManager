@@ -8,6 +8,9 @@ public class Cerca
 {
         public static void CercaRow(DefaultTableModel model, File file)
         {
+    			if(file == null) {
+    				return;
+    			}
                 JTextField nome = new JTextField();
                 JTextField cognome = new JTextField();
                 JTextField classe = new JTextField();
@@ -69,6 +72,8 @@ public class Cerca
 
                                 DefaultTableModel modelPanel = new DefaultTableModel();
                                 JTable table = new JTable(modelPanel);
+                                table.setDefaultEditor(Object.class, null);
+                                table.getTableHeader().setReorderingAllowed(false);
                                 JScrollPane scroll = new JScrollPane(table);
 
                                 modelPanel.addColumn("ID");

@@ -2,16 +2,19 @@
 * @author Giuseppe Tutino
 * @version 1.0
 * @java-version openjdk15
+* @sqlite-verision 3.34.0
 * * */
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.File;
 
 public class Main
 {
-        public static JFrame f  = new JFrame("Database");
+        public static JFrame f  = new JFrame("Database Manager");
 
         public static JScrollPane scroll;
         public static JTable table;
@@ -22,26 +25,20 @@ public class Main
         public static JButton btnElimina = new JButton("Elimina");
 
         public static JPanel p = new JPanel();
+        
+        public static File file;
 
         public static void main(String[] args)
         {
 
-                JFileChooser filec = new JFileChooser();
-                filec.setCurrentDirectory(new File("."));
-                File elenco = null;
-                int returnVal = filec.showOpenDialog(null);
-                if(returnVal == JFileChooser.APPROVE_OPTION)
-                        elenco = filec.getSelectedFile();
-                assert elenco != null;
-                File file = elenco.getAbsoluteFile();
-
-
                 // Init Tabella
                 DefaultTableModel model = new DefaultTableModel();
                 table = new JTable(model);
+                table.setDefaultEditor(Object.class, null);
+                table.getTableHeader().setReorderingAllowed(false);
                 scroll = new JScrollPane(table);
 
-                //Button style
+                // Button style
                 btnAggiungi.setBackground(Color.GRAY);
                 btnModifica.setBackground(Color.GRAY);
                 btnCerca.setBackground(Color.GRAY);
@@ -52,12 +49,55 @@ public class Main
                 btnCerca.setFont(new Font("Arial", Font.PLAIN, 16));
                 btnElimina.setFont(new Font("Arial", Font.PLAIN, 16));
 
-                //Panel style
+                // Panel style
                 p.setBackground(Color.LIGHT_GRAY);
 
-                //Table style
+                // Table style
                 table.setBackground(Color.LIGHT_GRAY);
 
+                //MenuBar
+                JMenuBar menuBar;
+                JMenu menu;
+                JMenuItem openFile, closeFile;
+
+                menuBar = new JMenuBar();
+
+                //Menu "File"
+                menu = new JMenu("File");
+                menu.setMnemonic(KeyEvent.VK_F);
+                menuBar.add(menu);
+                
+                openFile = new JMenuItem("Apri");
+                openFile.setMnemonic(KeyEvent.VK_O);
+                
+                closeFile = new JMenuItem("Chiudi");
+                closeFile.setMnemonic(KeyEvent.VK_X);
+                
+                menu.add(openFile);
+                menu.add(closeFile);
+                
+                // Eventi menu
+                openFile.addActionListener(e ->{
+                	JFileChooser filecMenu = new JFileChooser();
+                	filecMenu.setCurrentDirectory(new File("."));
+                	filecMenu.setFileFilter(new FileNameExtensionFilter("SQLite DataBase","db"));
+                	File elencoMenu = null;
+                	int returnValMenu = filecMenu.showOpenDialog(null);
+                	if(returnValMenu == JFileChooser.APPROVE_OPTION)
+                		elencoMenu = filecMenu.getSelectedFile();
+                	assert elencoMenu != null;
+                	file = elencoMenu.getAbsoluteFile();
+                	
+                	// Init DB
+                	Reload.ReloadDB(model, file);
+
+                });
+                
+                closeFile.addActionListener(e ->{
+                	model.getDataVector().removeAllElements();
+                	file = null;
+                	table.revalidate();
+                });
 
 
                 // Aggiungo le colonne
@@ -65,6 +105,7 @@ public class Main
                 model.addColumn("Nome");
                 model.addColumn("Cognome");
                 model.addColumn("Classe");
+                
 
 
                 // Pannello laterale
@@ -79,19 +120,20 @@ public class Main
 
 
                 // JFrame
+                ImageIcon img = new ImageIcon("databaseimg.png");
+                f.setIconImage(img.getImage());
+                
                 BorderLayout bordlay = new BorderLayout();
                 bordlay.setHgap(6);
                 bordlay.setVgap(6);
+                f.setJMenuBar(menuBar);
                 f.setLayout(bordlay);
                 f.add(scroll,BorderLayout.CENTER);
                 f.add(p,BorderLayout.WEST);
                 f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-                f.setSize(500,500);
+                f.setSize(800,500);
                 f.setVisible(true);
 
-
-                // Init DB
-                Reload.ReloadDB(model,file);
 
                 // CRUD Buttons
                 btnAggiungi.addActionListener(e -> Aggiungi.AggiungiRow(model,file));

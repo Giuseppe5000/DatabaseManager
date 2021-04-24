@@ -7,6 +7,10 @@ public class Elimina
 {
         public static void EliminaRow(DefaultTableModel model, JTable table, File file)
         {
+    			if(file == null) {
+    				return;
+    			}
+    			
                 if (table.getSelectedRow() != -1) {
 
                         int id = (int) model.getValueAt(table.getSelectedRow(),0);

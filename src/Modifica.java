@@ -5,8 +5,12 @@ import javax.swing.table.DefaultTableModel;
 
 public class Modifica
 {
+	
         public static void ModificaRow(DefaultTableModel model, JTable table, File file)
         {
+    			if(file == null) {
+    				return;
+    			}
                 if (table.getSelectedRow() != -1) {
 
                         // Recupero i dati della row selezionata

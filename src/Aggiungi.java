@@ -7,7 +7,9 @@ public class Aggiungi
 {
         public static void AggiungiRow(DefaultTableModel model, File file)
         {
-
+        		if(file == null) {
+        			return;
+        		}
                 JTextField nome = new JTextField();
                 JTextField cognome = new JTextField();
                 JTextField classe = new JTextField();
