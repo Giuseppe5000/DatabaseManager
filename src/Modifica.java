@@ -35,7 +35,7 @@ public class Modifica
 
                         int i = JOptionPane.showConfirmDialog(null,obj,"Modifica",JOptionPane.OK_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE);
 
-                        if(i == JOptionPane.OK_OPTION && !(txtCognome.getText().isEmpty() && txtCognome.getText().isEmpty() && txtClasse.getText().isEmpty())){
+                        if(i == JOptionPane.OK_OPTION && !(txtNome.getText().isEmpty() && txtCognome.getText().isEmpty() && txtClasse.getText().isEmpty())){
                                 String url = "jdbc:sqlite:" + file;
                                 Connection con;
 

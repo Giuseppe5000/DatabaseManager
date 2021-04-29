@@ -1,6 +1,6 @@
 /*
 * @author Giuseppe Tutino
-* @version 1.0
+* @version 1.1
 * @java-version openjdk15
 * @sqlite-verision 3.34.0
 * * */
@@ -11,6 +11,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Vector;
 
 public class Main
 {
@@ -30,6 +34,7 @@ public class Main
 
         public static void main(String[] args)
         {
+                SplashScreen.Loading();
 
                 // Init Tabella
                 DefaultTableModel model = new DefaultTableModel();
@@ -58,7 +63,7 @@ public class Main
                 //MenuBar
                 JMenuBar menuBar;
                 JMenu menu;
-                JMenuItem openFile, closeFile;
+                JMenuItem openFile, closeFile, savefile;
 
                 menuBar = new JMenuBar();
 
@@ -72,9 +77,13 @@ public class Main
                 
                 closeFile = new JMenuItem("Chiudi");
                 closeFile.setMnemonic(KeyEvent.VK_X);
+
+                savefile = new JMenuItem("Salva come csv");
+                savefile.setMnemonic(KeyEvent.VK_S);
                 
                 menu.add(openFile);
                 menu.add(closeFile);
+                menu.add(savefile);
                 
                 // Eventi menu
                 openFile.addActionListener(e ->{
@@ -97,6 +106,55 @@ public class Main
                 	model.getDataVector().removeAllElements();
                 	file = null;
                 	table.revalidate();
+                });
+
+                savefile.addActionListener(e -> {
+                        JFileChooser chooser = new JFileChooser();
+                        chooser.setCurrentDirectory(new File("."));
+                        chooser.setFileFilter(new FileNameExtensionFilter("CSV files","csv"));
+                        int j = chooser.showSaveDialog(f);
+
+                        if (j == JFileChooser.APPROVE_OPTION) {
+
+                                String url = "jdbc:sqlite:" + file;
+                                Connection con;
+                                String query = "SELECT * FROM Studenti;";
+                                Statement stmt;
+
+                                try {
+                                        FileWriter csvOutputFile = new FileWriter(chooser.getSelectedFile());
+
+                                        con = DriverManager.getConnection(url, "", "");
+                                        stmt = con.createStatement();
+                                        ResultSet rs = stmt.executeQuery(query);
+
+                                        while (rs.next()) {
+                                                Vector<String> v = new Vector<>();
+                                                v.add(rs.getString(1));
+                                                v.add(rs.getString(2));
+                                                v.add(rs.getString(3));
+                                                v.add(rs.getString(4));
+
+                                                //Aggiungo le virgole
+                                                String csvValues = String.join(",", v);
+
+                                                //Aggiungo al file .csv
+                                                csvOutputFile.write(csvValues + "\n");
+
+                                        }
+                                        csvOutputFile.close();
+
+                                        stmt.close();
+                                        con.close();
+
+                                        JOptionPane.showMessageDialog(f, "CSV salvato con successo");
+
+
+                                } catch (SQLException | IOException ex) {
+                                        System.err.print("SQLException: ");
+                                        System.err.println(ex.getMessage());
+                                }
+                        }
                 });
 
 
@@ -132,6 +190,10 @@ public class Main
                 f.add(p,BorderLayout.WEST);
                 f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 f.setSize(800,500);
+                Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+                int x = (int) ((dimension.getWidth() - f.getWidth()) / 2);
+                int y = (int) ((dimension.getHeight() - f.getHeight()) / 2);
+                f.setLocation(x, y);
                 f.setVisible(true);
 
 
